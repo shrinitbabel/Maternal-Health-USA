@@ -3,7 +3,20 @@ from __future__ import annotations
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = PROJECT_ROOT.parent / "PRJ-6250" / "Project--maternal-health-equity-linked-datasets--V2" / "data"
+
+# Data can live in one of two places:
+#  (1) <repo_root>/PRJ-6250/... -- current layout, matlevel-cds is a sibling
+#  (2) <matlevel-cds>/data/...  -- deployment fallback (bundled inside service)
+# Or an env var MATLEVEL_DATA_ROOT can override both.
+import os
+_env = os.environ.get("MATLEVEL_DATA_ROOT")
+_candidates = [
+    Path(_env) if _env else None,
+    PROJECT_ROOT.parent / "PRJ-6250" / "Project--maternal-health-equity-linked-datasets--V2" / "data",
+    PROJECT_ROOT / "data",
+]
+DATA_ROOT = next((p for p in _candidates if p is not None and p.exists()),
+                 _candidates[1])  # default to layout (2) even if missing
 RAW_CSV = DATA_ROOT / "Maternal Health HCUP SV CENSUS TIME.csv"
 
 OUTPUT_ROOT = PROJECT_ROOT / "outputs"

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: matlevel-cds-api
+    runtime: python
+    rootDir: matlevel-cds
+    plan: starter                 # pick free/starter; starter avoids cold sleeps
+    pythonVersion: "3.12"
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONIOENCODING
+        value: utf-8
+      # Optional override if the data folder gets relocated:
+      # - key: MATLEVEL_DATA_ROOT
+      #   value: /opt/render/project/src/PRJ-6250/Project--maternal-health-equity-linked-datasets--V2/data
