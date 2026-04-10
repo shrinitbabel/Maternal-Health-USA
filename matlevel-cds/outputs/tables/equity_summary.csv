@@ -1,0 +1,8 @@
+Group,n,% >60 min to Level III,% >90 min to Level III,Median puerperal rate (/1000)
+All,2054,57.64,32.28,13.23
+SVI Q1,484,53.72,30.58,12.26
+SVI Q2,531,51.79,25.99,12.97
+SVI Q3,515,56.89,31.46,13.7
+SVI Q4,524,67.94,41.03,13.75
+Rural (decile<=3),744,77.28,46.77,24.54
+Top quartile AIAN,514,71.6,46.69,14.21

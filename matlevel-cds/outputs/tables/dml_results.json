@@ -1,0 +1,502 @@
+{
+  "smm_rate_per1000": {
+    "gap60_level3": {
+      "main": {
+        "exposure": "gap60_level3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.04042085399944795,
+        "se": 0.0071268542310593645,
+        "ci_lo": -0.0543894882923243,
+        "ci_hi": -0.026452219706571592,
+        "zstat": -5.671626314916171,
+        "pval": 1.4144824990689161e-08,
+        "n": 1995,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap60_level3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.045606258609910785,
+        "se": 0.007100881099796897,
+        "ci_lo": -0.05952398556551271,
+        "ci_hi": -0.03168853165430886,
+        "zstat": -6.422619667750139,
+        "pval": 1.3394887208404588e-10,
+        "n": 1988,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap60_level3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.05365640909952575,
+        "se": 0.010697957515819888,
+        "ci_lo": -0.07462440583053273,
+        "ci_hi": -0.03268841236851877,
+        "zstat": -5.015575077782831,
+        "pval": 5.287507180006814e-07,
+        "n": 1102,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "gap90_level3": {
+      "main": {
+        "exposure": "gap90_level3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.03513405612991331,
+        "se": 0.00828199803499316,
+        "ci_lo": -0.05136677227849991,
+        "ci_hi": -0.01890133998132672,
+        "zstat": -4.242219809937727,
+        "pval": 2.213197643954152e-05,
+        "n": 1995,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap90_level3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.03860007369765333,
+        "se": 0.008358058258175472,
+        "ci_lo": -0.05498186788367725,
+        "ci_hi": -0.022218279511629406,
+        "zstat": -4.618306370369756,
+        "pval": 3.868847562861348e-06,
+        "n": 1988,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap90_level3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.03848016627067134,
+        "se": 0.010954197840899172,
+        "ci_lo": -0.05995039403883372,
+        "ci_hi": -0.017009938502508967,
+        "zstat": -3.5128237438801553,
+        "pval": 0.0004433714907601909,
+        "n": 1102,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "log_time3": {
+      "main": {
+        "exposure": "log_time3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.016242505435616922,
+        "se": 0.006021999272253934,
+        "ci_lo": -0.028045624009234632,
+        "ci_hi": -0.004439386861999212,
+        "zstat": -2.697194851957799,
+        "pval": 0.0069926340210170555,
+        "n": 1995,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "log_time3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.01817135436296837,
+        "se": 0.006351052519360813,
+        "ci_lo": -0.030619417300915566,
+        "ci_hi": -0.005723291425021178,
+        "zstat": -2.861156368582067,
+        "pval": 0.0042209880799925145,
+        "n": 1988,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "log_time3",
+        "outcome": "smm_rate_per1000",
+        "theta": -0.010917905242550449,
+        "se": 0.010753328036890417,
+        "ci_lo": -0.031994428194855665,
+        "ci_hi": 0.010158617709754769,
+        "zstat": -1.0153047693788781,
+        "pval": 0.3099605716329856,
+        "n": 1102,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    }
+  },
+  "hdp_rate_per1000": {
+    "gap60_level3": {
+      "main": {
+        "exposure": "gap60_level3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.08908821712726371,
+        "se": 0.012279738242748103,
+        "ci_lo": -0.11315650408304999,
+        "ci_hi": -0.06501993017147743,
+        "zstat": -7.254895451853419,
+        "pval": 4.0197219889084547e-13,
+        "n": 1991,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap60_level3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.10183822419449211,
+        "se": 0.012142178536364215,
+        "ci_lo": -0.12563689412576598,
+        "ci_hi": -0.07803955426321825,
+        "zstat": -8.387146004277579,
+        "pval": 4.98086245383739e-17,
+        "n": 1984,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap60_level3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.08918134216438796,
+        "se": 0.017179451366302535,
+        "ci_lo": -0.12285306684234093,
+        "ci_hi": -0.05550961748643499,
+        "zstat": -5.191163574601515,
+        "pval": 2.0898392247249472e-07,
+        "n": 1098,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "gap90_level3": {
+      "main": {
+        "exposure": "gap90_level3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.06422236023652585,
+        "se": 0.013691585941306256,
+        "ci_lo": -0.0910578686814861,
+        "ci_hi": -0.03738685179156559,
+        "zstat": -4.69064434988301,
+        "pval": 2.723460090829658e-06,
+        "n": 1991,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap90_level3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.08151758286479058,
+        "se": 0.013423375395711035,
+        "ci_lo": -0.10782739864038421,
+        "ci_hi": -0.055207767089196946,
+        "zstat": -6.072808102411905,
+        "pval": 1.2569262557378686e-09,
+        "n": 1984,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap90_level3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.046834039787972764,
+        "se": 0.017872657821708663,
+        "ci_lo": -0.08186444911852174,
+        "ci_hi": -0.011803630457423789,
+        "zstat": -2.620429499360008,
+        "pval": 0.008781908605322717,
+        "n": 1098,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "log_time3": {
+      "main": {
+        "exposure": "log_time3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.04253604225913639,
+        "se": 0.00916172808674028,
+        "ci_lo": -0.060493029309147336,
+        "ci_hi": -0.024579055209125438,
+        "zstat": -4.642796845356999,
+        "pval": 3.4372428415076753e-06,
+        "n": 1991,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "log_time3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.056968855033730156,
+        "se": 0.009588629367987038,
+        "ci_lo": -0.07576256859498476,
+        "ci_hi": -0.03817514147247556,
+        "zstat": -5.941292842533735,
+        "pval": 2.8278292938980135e-09,
+        "n": 1984,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "log_time3",
+        "outcome": "hdp_rate_per1000",
+        "theta": -0.01892291745183506,
+        "se": 0.01630246532990991,
+        "ci_lo": -0.05087574949845848,
+        "ci_hi": 0.013029914594788361,
+        "zstat": -1.160739622437193,
+        "pval": 0.2457478033403694,
+        "n": 1098,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    }
+  },
+  "childbirth_cx_rate_per1000": {
+    "gap60_level3": {
+      "main": {
+        "exposure": "gap60_level3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.03038218422729735,
+        "se": 0.010018243762886276,
+        "ci_lo": -0.05001794200255445,
+        "ci_hi": -0.010746426452040249,
+        "zstat": -3.0326856629154513,
+        "pval": 0.0024238794002083334,
+        "n": 2049,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap60_level3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.03250026803826805,
+        "se": 0.010027351234466738,
+        "ci_lo": -0.05215387645782285,
+        "ci_hi": -0.01284665961871324,
+        "zstat": -3.241161826121715,
+        "pval": 0.0011904358453418936,
+        "n": 2042,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap60_level3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.051059513707032184,
+        "se": 0.014658284725699092,
+        "ci_lo": -0.0797897517694024,
+        "ci_hi": -0.022329275644661965,
+        "zstat": -3.483321184061461,
+        "pval": 0.0004952338326697738,
+        "n": 1156,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "gap90_level3": {
+      "main": {
+        "exposure": "gap90_level3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.04112466147381285,
+        "se": 0.011041333377043184,
+        "ci_lo": -0.0627656748928175,
+        "ci_hi": -0.01948364805480821,
+        "zstat": -3.7246100692257005,
+        "pval": 0.0001956173488321007,
+        "n": 2049,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap90_level3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.03766111405691715,
+        "se": 0.010959010868507068,
+        "ci_lo": -0.059140775359191,
+        "ci_hi": -0.016181452754643295,
+        "zstat": -3.436543179744804,
+        "pval": 0.0005891884286359533,
+        "n": 2042,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap90_level3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.04848634534169796,
+        "se": 0.014174962989489311,
+        "ci_lo": -0.07626927280109701,
+        "ci_hi": -0.020703417882298913,
+        "zstat": -3.4205623942475496,
+        "pval": 0.0006249179885183532,
+        "n": 1156,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "log_time3": {
+      "main": {
+        "exposure": "log_time3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.0194950811035138,
+        "se": 0.00732959907544848,
+        "ci_lo": -0.03386109529139282,
+        "ci_hi": -0.005129066915634778,
+        "zstat": -2.6597745528558727,
+        "pval": 0.007819297152958654,
+        "n": 2049,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "log_time3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.022454919286512734,
+        "se": 0.007357576192827803,
+        "ci_lo": -0.03687576862445523,
+        "ci_hi": -0.00803406994857024,
+        "zstat": -3.051945192005199,
+        "pval": 0.002273636113556656,
+        "n": 2042,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "log_time3",
+        "outcome": "childbirth_cx_rate_per1000",
+        "theta": -0.02840999751476399,
+        "se": 0.011520798024006696,
+        "ci_lo": -0.050990761641817116,
+        "ci_hi": -0.0058292333877108665,
+        "zstat": -2.465974792333316,
+        "pval": 0.013664094991755337,
+        "n": 1156,
+        "n_states": 33,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    }
+  },
+  "puerperal_rate_per1000": {
+    "gap60_level3": {
+      "main": {
+        "exposure": "gap60_level3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.03744581049316111,
+        "se": 0.01715693376265821,
+        "ci_lo": 0.0038182203183510233,
+        "ci_hi": 0.0710734006679712,
+        "zstat": 2.182546777365389,
+        "pval": 0.029069202881206343,
+        "n": 1135,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap60_level3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.028340982146396163,
+        "se": 0.017125846113201126,
+        "ci_lo": -0.005225676235478042,
+        "ci_hi": 0.06190764052827037,
+        "zstat": 1.6548660988229988,
+        "pval": 0.09795166235392624,
+        "n": 1128,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap60_level3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.011269270121935215,
+        "se": 0.037254910228326034,
+        "ci_lo": -0.061750353925583805,
+        "ci_hi": 0.08428889416945423,
+        "zstat": 0.30249086772370876,
+        "pval": 0.7622778940967025,
+        "n": 266,
+        "n_states": 30,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "gap90_level3": {
+      "main": {
+        "exposure": "gap90_level3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.04186436921056631,
+        "se": 0.020169384434846005,
+        "ci_lo": 0.002332375718268144,
+        "ci_hi": 0.08139636270286449,
+        "zstat": 2.075639410107062,
+        "pval": 0.03792731361753283,
+        "n": 1135,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "gap90_level3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.03329284492892449,
+        "se": 0.019961602438123404,
+        "ci_lo": -0.005831895849797382,
+        "ci_hi": 0.07241758570764636,
+        "zstat": 1.667844304189757,
+        "pval": 0.09534663835650753,
+        "n": 1128,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "gap90_level3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.049437951832728214,
+        "se": 0.03627785774953292,
+        "ci_lo": -0.021666649356356302,
+        "ci_hi": 0.12054255302181273,
+        "zstat": 1.3627583021592484,
+        "pval": 0.17295869657335344,
+        "n": 266,
+        "n_states": 30,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    },
+    "log_time3": {
+      "main": {
+        "exposure": "log_time3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.040091021778968464,
+        "se": 0.011524028649459042,
+        "ci_lo": 0.01750392562602874,
+        "ci_hi": 0.0626781179319082,
+        "zstat": 3.478906812753403,
+        "pval": 0.0005034636271596231,
+        "n": 1135,
+        "n_states": 37,
+        "note": "main (all counties)"
+      },
+      "excl_level3_host": {
+        "exposure": "log_time3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.039497847509245836,
+        "se": 0.011110235667944663,
+        "ci_lo": 0.017721785600074296,
+        "ci_hi": 0.06127390941841737,
+        "zstat": 3.555086380679154,
+        "pval": 0.000377854930580478,
+        "n": 1128,
+        "n_states": 37,
+        "note": "exclude level-III host counties"
+      },
+      "rural_subset": {
+        "exposure": "log_time3",
+        "outcome": "puerperal_rate_per1000",
+        "theta": 0.08909719367510725,
+        "se": 0.03064142670830078,
+        "ci_lo": 0.02903999732683773,
+        "ci_hi": 0.14915439002337677,
+        "zstat": 2.907736461597944,
+        "pval": 0.00364054994381363,
+        "n": 266,
+        "n_states": 30,
+        "note": "rural subset (pop decile <= 5)"
+      }
+    }
+  }
+}

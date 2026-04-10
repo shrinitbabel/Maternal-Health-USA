@@ -1,0 +1,36 @@
+Characteristic,Value
+Counties in cohort,"2,054"
+States represented,37
+Total population (M),256.1
+,
+"-- Travel time to OB care, median (IQR), minutes --",
+  Level 0 (no maternal services),15.7 (9.2-27.9)
+  Level I (basic OB),30.9 (16.3-45.5)
+  Level II (complicated OB),42.6 (27.7-64.1)
+  Level III (serious illness/abnormalities),67.5 (42.9-105.6)
+,
+-- ACOG Level-III discordance --,
+  Counties >30 min from Level III,87.5%
+  Counties >60 min from Level III,57.6%
+  Counties >90 min from Level III,32.3%
+  Maternity desert (composite),34.9%
+,
+-- SVI quartiles (% of counties) --,
+  Q1,23.6%
+  Q2,25.9%
+  Q3,25.1%
+  Q4,25.5%
+,
+"-- Demographics, median (IQR) % --",
+"  % Minority (non-white non-Hispanic, SVI)",19.5 (8.2-37.8)
+  % Black,2.7 (0.7-11.2)
+  % AIAN,0.5 (0.3-1.0)
+  % Asian,0.6 (0.4-1.4)
+  % in poverty (SVI),15.1 (11.4-19.4)
+  % no HS diploma (SVI),12.6 (9.1-17.6)
+  % no vehicle (SVI),5.8 (4.5-7.6)
+,
+"-- Outcomes, median (IQR) per 1,000 PRG discharges --",
+  SMM-proxy composite,367.5 (333.3-405.2)
+  Hypertensive disorders of pregnancy,110.2 (90.9-131.2)
+  Childbirth complications,206.1 (182.6-234.3)

@@ -1,0 +1,13 @@
+[dml] smm_rate_per1000 x gap60_level3 main theta=-0.0404 p=0.000 | rural theta=-0.0537 p=0.000
+[dml] smm_rate_per1000 x gap90_level3 main theta=-0.0351 p=0.000 | rural theta=-0.0385 p=0.000
+[dml] smm_rate_per1000 x log_time3 main theta=-0.0162 p=0.007 | rural theta=-0.0109 p=0.310
+[dml] hdp_rate_per1000 x gap60_level3 main theta=-0.0891 p=0.000 | rural theta=-0.0892 p=0.000
+[dml] hdp_rate_per1000 x gap90_level3 main theta=-0.0642 p=0.000 | rural theta=-0.0468 p=0.009
+[dml] hdp_rate_per1000 x log_time3 main theta=-0.0425 p=0.000 | rural theta=-0.0189 p=0.246
+[dml] childbirth_cx_rate_per1000 x gap60_level3 main theta=-0.0304 p=0.002 | rural theta=-0.0511 p=0.000
+[dml] childbirth_cx_rate_per1000 x gap90_level3 main theta=-0.0411 p=0.000 | rural theta=-0.0485 p=0.001
+[dml] childbirth_cx_rate_per1000 x log_time3 main theta=-0.0195 p=0.008 | rural theta=-0.0284 p=0.014
+[dml] puerperal_rate_per1000 x gap60_level3 main theta=+0.0374 p=0.029 | rural theta=+0.0113 p=0.762
+[dml] puerperal_rate_per1000 x gap90_level3 main theta=+0.0419 p=0.038 | rural theta=+0.0494 p=0.173
+[dml] puerperal_rate_per1000 x log_time3 main theta=+0.0401 p=0.001 | rural theta=+0.0891 p=0.004
+[ok] wrote dml_results.json
