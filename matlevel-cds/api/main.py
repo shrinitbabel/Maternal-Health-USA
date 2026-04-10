@@ -54,6 +54,8 @@ from src.cds import RiskFactors, _county_lookup, recommend
 from src.counterfactual import (NON_CONUS_STATES, SitingScenario,
                                 rank_siting_candidates, simulate_new_facility)
 from src.geo import county_centroids
+from src.shap_explain import explain_patient
+
 
 APP_VERSION = "0.2.0"
 
@@ -347,3 +349,27 @@ def map_centroids() -> list[dict]:
             "is_level3_host": bool(r.get("is_level3_host", False)),
         })
     return out
+
+# ------------------------------- SHAP explain --------------------------------
+from pydantic import BaseModel
+
+class ShapRequest(BaseModel):
+    fips: str
+
+@app.post("/shap")
+def shap_endpoint(req: ShapRequest) -> dict:
+    try:
+        return explain_patient(req.fips)
+    except KeyError:
+        raise HTTPException(404, f"FIPS {req.fips} not found")
+
+@app.post("/shap/stream")
+async def shap_stream(req: ShapRequest) -> EventSourceResponse:
+    fips = req.fips
+    q: Queue = Queue()
+
+    def run_it(log=None):
+        return explain_patient(fips, log=log)
+
+    _run_with_stream(run_it, q)
+    return EventSourceResponse(_drain_queue(q))
