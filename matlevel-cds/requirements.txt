@@ -7,10 +7,18 @@ xgboost>=2.0
 shap>=0.44
 matplotlib>=3.8
 openpyxl>=3.1
+networkx>=3.0
+# Geospatial GNN. torch CPU wheels are ~200 MB; torch_geometric requires torch
+# to be installed first, so pip handles the order correctly via the index URL.
+# On Render we pin the CPU wheel to avoid pulling in CUDA.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2,<3
+torch_geometric>=2.5
 # API
 fastapi>=0.110
 uvicorn[standard]>=0.29
 pydantic>=2.6
+sse-starlette>=2.0
 # dev
 pytest>=7.4
 nbformat>=5.9

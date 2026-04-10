@@ -6,7 +6,7 @@ Run from project root:
 from __future__ import annotations
 import time
 
-from src import describe, model, causal, explain, report
+from src import causal, describe, evaluate, explain, gnn, model, report
 
 
 STEPS = [
@@ -15,6 +15,9 @@ STEPS = [
     ("DoubleML causal analysis",                           causal.run),
     ("SHAP explainability + fairness stratification",      explain.run),
     ("summary forest plot + equity bars",                  report.run),
+    ("full performance metrics (baselines, calibration,\n"
+     "  ECE, per-state, binary AUC/F1/Brier)",             evaluate.run),
+    ("GraphSAGE spatial GNN vs XGBoost",                   gnn.run),
 ]
 
 

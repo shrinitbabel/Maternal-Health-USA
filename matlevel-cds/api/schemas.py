@@ -93,3 +93,22 @@ class HealthResponse(BaseModel):
     version: str
     counties_loaded: int
     model_loaded: bool
+
+
+class CounterfactualRequest(BaseModel):
+    lat: float = Field(..., ge=-90, le=90)
+    lon: float = Field(..., ge=-180, le=180)
+    level: int = Field(3, ge=1, le=4,
+                       description="ACOG level of the proposed new facility")
+    name: Optional[str] = None
+    conus_only: bool = True
+
+
+class MetricsResponse(BaseModel):
+    regression: dict
+    binary_top_quartile_puerperal: dict
+
+
+class GNNComparisonResponse(BaseModel):
+    results: dict
+

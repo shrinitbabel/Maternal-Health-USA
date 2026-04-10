@@ -16,7 +16,7 @@ You already created the web service — here are the exact settings to fill in, 
 | **Start Command** | `uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1` |
 | **Python Version** | `3.12` (set as env var `PYTHON_VERSION=3.12` — Render reads this) |
 | **Health Check Path** | `/health` |
-| **Instance Type** | Starter ($7/mo) recommended. Free tier works but cold-starts will be slow because the XGBoost pickle + CSV take ~15-25s to warm. |
+| **Instance Type** | **Starter ($7/mo) strongly recommended** — torch CPU wheel + torch_geometric push the install over Free-tier memory limits, and cold-starts take ~40 s with the GNN comparison cache warm. |
 | **Auto-Deploy** | On |
 
 ### Environment variables to add in the dashboard
@@ -70,8 +70,35 @@ All already live, tested with `httpx.TestClient` end-to-end:
 | `GET` | `/counties/{state}` | same, filtered to a 2-digit state FIPS (e.g. `21` for KY) |
 | `GET` | `/access/{fips}` | county access & SVI context + model-scored county complication rates, **no patient data required** — ideal for the map popover |
 | `POST` | `/recommend` | full CDS recommendation. Body: `{fips, risk: {...}}` |
+| `GET` | `/metrics` | cached full performance metrics (bootstrap CI, calibration, ECE, per-state, AUC/F1/Brier) |
+| `GET` | `/metrics/stream` | **SSE** — re-run evaluation live with per-step progress messages |
+| `POST` | `/counterfactual` | single-shot hospital-siting simulation (body: `{lat, lon, level, conus_only}`) |
+| `POST` | `/counterfactual/stream` | **SSE** — same simulation streamed with progress events |
+| `GET` | `/counterfactual/rank?level=3&top_n=10` | **SSE** — rank the best siting candidates nationwide |
+| `GET` | `/gnn/compare` | cached GraphSAGE-vs-XGBoost R² comparison |
+| `GET` | `/map/centroids` | all counties with lat/lon + access + SVI context (for the Vercel map choropleth) |
 | `GET` | `/docs` | auto-generated Swagger UI (FastAPI) |
 | `GET` | `/openapi.json` | OpenAPI schema (useful for the Vercel frontend client) |
+
+### Streaming endpoints — how the frontend consumes them
+
+All three `stream` endpoints use **Server-Sent Events (SSE)** via `sse-starlette`. In Next.js you consume them with `EventSource`:
+
+```js
+const es = new EventSource("/api/counterfactual/stream", ...);
+es.addEventListener("log", (e) => {
+  const { msg } = JSON.parse(e.data);
+  setLoadingLog((log) => [...log, msg]);
+});
+es.addEventListener("done", (e) => {
+  const result = JSON.parse(e.data);
+  setResult(result);
+  es.close();
+});
+es.addEventListener("error", (e) => { es.close(); });
+```
+
+Every long-running operation emits one `log` event per major step so you can build a proper loading indicator. Idle intervals emit silent `ping` events to keep the connection alive without spamming the client.
 
 ### Example `POST /recommend` body
 ```json
@@ -165,7 +192,9 @@ and you're live.
 
 ## 6. Known caveats on Render
 
-- **Cold-start latency on free tier**: the pkl model is 7 MB and pandas loads a 5 MB CSV on first request — expect ~15-25 s warmup. The `@app.on_event("startup")` handler already pre-warms both caches before Render runs the health check, so users never see the cold start.
-- **Ephemeral disk**: Render containers have ephemeral `/tmp`. We don't write to disk at runtime, so this doesn't bite us.
-- **Single worker**: `--workers 1` intentional. Multi-worker would load the 7 MB model once per worker and balloon the memory footprint. If you outgrow 1 worker, move to the Standard plan (512 MB → 2 GB).
-- **Model drift**: there is none yet — this service serves a frozen cohort (HCUP 2017-2019). When you refresh the data in a future release, retrain `xgb_models.pkl` locally via `python -m src.model`, commit it, and Render auto-deploys.
+- **Build time is now longer** (~4-5 min on the first deploy): torch CPU wheel is ~200 MB and torch_geometric adds another ~30 MB. This is the price of shipping a bona-fide geospatial GNN. Subsequent deploys reuse pip's cache so they're much faster.
+- **Cold-start latency**: model + CSV + drive-time-model fit total ~25-35 s cold. The `@app.on_event("startup")` handler pre-warms all caches (county lookup, xgb pickle, geo centroids, drive-time log-log fit, analytic cohort) before Render hits `/health`, so users never see the cold start.
+- **Ephemeral disk**: no runtime writes.
+- **Single worker**: `--workers 1` intentional. Multi-worker would load torch + xgboost once per worker and balloon the memory footprint. Stay on Starter or move to Standard (2 GB).
+- **Model drift**: none yet — the service serves a frozen cohort (HCUP 2017–2019). To refresh: locally run `python -m src.model && python -m src.evaluate && python -m src.gnn`, commit the updated `outputs/models/*.pkl`, `outputs/tables/full_metrics.json`, and `outputs/tables/gnn_vs_xgb.json`, and push — Render auto-deploys.
+- **CONUS-only counterfactual default**: Alaska, Hawaii, and territories are excluded from the siting simulation because Haversine + log-log drive time doesn't model water/ferry barriers. Set `conus_only: false` in the request body if you explicitly want them included (the results will contain non-physical values for island counties — clearly documented in the response).
