@@ -19,7 +19,7 @@ Doubling a woman's drive to advanced obstetric care is associated with about a *
 
 ## 3. The method
 
-**The overall approach, in plain English.** Two steps. First, an AI model learns to predict each county's postpartum complication rate — and its drive time to advanced care — from a set of demographic and social features for the county itself plus its 8 nearest neighbors. Second, a statistical method called DoubleML "subtracts out" the part of the rate that the AI could already explain from those features, and reads the *causal* effect of drive time off what's left over.
+First, an AI model learns to predict each county's postpartum complication rate — and its drive time to advanced care — from a set of demographic and social features for the county itself plus its 8 nearest neighbors. Second, a statistical method called DoubleML "subtracts out" the part of the rate that the AI could already explain from those features, and reads the *causal* effect of drive time off what's left over.
 
 **What the model predicts (target).** Each county's rate of postpartum complications, expressed as cases per 1,000 pregnancy-related hospital visits.
 
