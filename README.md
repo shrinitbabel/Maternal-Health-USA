@@ -1,209 +1,101 @@
-# Maternal Health USA 
+# Maternal Health USA
 
-The live tool is at **[babels.ai/maternal](https://babels.ai/maternal)**.
-Click around the map for ten minutes before reading further — that's the fastest way to get the gist of what we built.
+Live tool: **[babels.ai/maternal](https://babels.ai/maternal)**.
 
----
-
-## 1. The story
-
-The U.S. has the highest maternal mortality rate of any high-income
-country, and the deaths are not distributed evenly: rural, low-income,
-and certain communities carry disproportionate burden. ACOG (American College of Obstetrics and Gynecology) and SMFM (Society of Maternal-Fetal Medicine) defined four **Levels of Maternal Care** (I–IV) so that high-risk
-pregnancies can be matched to facilities equipped to handle them. Level III/IV centers are advanced OBGYN centers that offer maternal-fetal medicine, ICU, and advanced neonatal care; Levels I–II do not.
-
-Our clinical question: **how far do U.S. women live from the level of
-care their pregnancy actually requires, and does that distance translate into worse outcomes?**
-
-We answered this at the county level for 2,054 counties (37 states,
-256 million people) by linking four public datasets, fitting predictive and causal models, and packaging the result as a point-of-care decision-support tool that — given a patient's county and risk factors — returns the recommended level of care, the drive time to the nearest facility at that level, and an action bundle.
-
-Two findings drive the manuscript:
-
-1. **Clinical.** Rural counties carry roughly 2× the postpartum
-   complication burden of non-rural counties and are roughly 2× as
-   likely to be more than 90 minutes from a Level III facility. The two
-   facts are linked.
-2. **Methodological.** Discharge-based data (HCUP) systematically
-   *under*-counts severe morbidity in remote counties because high-risk patients are transferred to regional centers and the receiving county "owns" the discharge. We name this the **referral-capture paradox**.
-   Postpartum complications escape this bias because postpartum events
-   present at the woman's local hospital — which is why the postpartum
-   outcome is our most trustworthy signal.
+This project asks one question, with machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we mean the medical events that happen to a woman *after* she has delivered her baby and gone home — chiefly **postpartum hemorrhage requiring readmission**, **postpartum sepsis** (typically 3–14 days after discharge), **postpartum venous thromboembolism / blood clots** (up to six weeks), **postpartum preeclampsia and eclampsia** (up to six weeks), and **postpartum cardiomyopathy** (weeks to months). These are leading causes of late maternal death in the United States.
 
 ---
 
-## 2. Clinical background
+## 1. The question
 
-### Levels of Maternal Care (ACOG/SMFM)
+How much does a U.S. county's drive time to a Level III obstetric hospital affect its rate of postpartum complications?
 
-| Level | Capabilities | Example patient |
-|---|---|---|
-| **I — Basic** | Uncomplicated term deliveries, basic emergencies, stabilize and transfer | Healthy multipara, low-risk pregnancy |
-| **II — Specialty** | Level I + moderate-risk care, OB anesthesia, some MFM consultation | Well-controlled gestational DM, mild preeclampsia |
-| **III — Subspecialty** | Level II + on-site MFM, adult ICU, blood bank, advanced imaging | Severe preeclampsia, placenta accreta, prior SMM |
-| **IV — Regional perinatal center** | Level III + complex maternal medical/surgical care, ECMO | Pulmonary HTN, complex congenital heart disease in pregnancy |
+## 2. The answer
 
-Source: ACOG/SMFM Obstetric Care Consensus #2 (2015, reaffirmed 2019);
-ACOG Committee Opinion 726. In our data, **Level III and IV are not
-separable** because the source hospital survey doesn't distinguish them; we treat "Level III" as "Level III or higher".
+Doubling a woman's drive to advanced obstetric care is associated with about a **2.8% increase** in the postpartum complication rate nationally (95% certainty range 1.2% to 4.4%, p = 0.001), and roughly an **8.9% increase in rural counties** (95% range 2.9% to 14.9%, p = 0.004).
 
-### The outcomes we measure
+## 3. Why this needs machine learning
 
-All are **county-level rates per 1,000 pregnancy-related (PRG) discharges**.
-
-- **SMM-proxy** — Severe Maternal Morbidity (CDC's 21-indicator list:
-  eclampsia, AMI, sepsis, hysterectomy, transfusion, etc.).
-- **HDP** — Hypertensive Disorders of Pregnancy: gestational HTN,
-  preeclampsia, eclampsia, HELLP.
-- **Childbirth complications** — intrapartum hemorrhage, obstructed
-  labor, perineal trauma.
-- **Placental disorders** — abruption, previa, accreta.
-- **Puerperal (postpartum) complications** — postpartum hemorrhage
-  readmission, postpartum sepsis, postpartum VTE, retained products.
-  **Our most trustworthy outcome (see below).**
-- **Diabetes in pregnancy** — gestational and pregestational.
-
-### Why the postpartum window is special
-
-Antepartum and intrapartum care can be regionalized — a high-risk
-patient is referred to a Level III/IV center for delivery, and the
-discharge code is captured at the receiving hospital. Postpartum events present locally: a woman discharged after delivery goes home, and if she develops postpartum sepsis, hemorrhage, or VTE in the next six weeks, she presents to her **local** ED. The discharge code is captured at her county of residence. That's why the puerperal outcome is the only one in which discharge-based data faithfully reflects residential access.
-
-### Maternity desert
-
-Our operational definition is access-to-care-level based:
-`time to Level III > 90 min OR time to Level I > 60 min`. About 35% of
-cohort counties meet it.
+A linear regression cannot recover this effect because the confounding is high-dimensional and *spatial* — a county's outcome depends on its neighbors' demographics and travel patterns, not just its own — so we need a model that can represent spatial structure paired with a debiased estimator that turns its predictions into an unbiased causal coefficient.
 
 ---
 
-## 3. The data
+## 4. The method
 
-The single linked dataset that powers the project is **PRJ-6250 —
-Maternal Health Equity Linked Datasets** (Colf et al., *Data in Brief*
-2026). The data descriptor PDF is in the project root —
-read it first.
+**Target.** Each county's rate of postpartum complications per 1,000 pregnancy-related hospital visits.
 
-PRJ-6250 links four public sources at the U.S. county level for 2017–2019:
+**Features per county.** Drive time to the nearest Level III obstetric hospital; the four CDC Social Vulnerability Index themes (socioeconomic status; household composition and disability; minority status and language; housing type and transportation); total population; share White / Black / AIAN / Asian; reporting completeness across the 15 PRG outcome categories; and whether the county itself hosts a Level III facility.
 
-1. **HCUP State Inpatient Databases** — every inpatient discharge in
-   participating states. We use the Pregnancy-Related (PRG) categorization
-   for the outcomes above.
-2. **CDC Social Vulnerability Index (SVI), 2018** — four themes
-   (socioeconomic, household, minority/language, housing/transportation)
-   plus an overall percentile.
-3. **U.S. Census ACS demographics** — population, age, race/ethnicity
-   (including % AIAN), rurality decile.
-4. **Travel time to the nearest hospital at each ACOG level** — computed
-   in ArcGIS by the PRJ-6250 team using the AHA Annual Survey to identify
-   each hospital's level and the road network for drive time from the
-   county centroid.
+**Model.** A 2-layer **GraphSAGE** graph neural network on an 8-nearest-neighbor county graph, built from the haversine distance between Census 2019 Gazetteer county centroids. Each county is represented as a vector that depends on its own features and the features of its eight nearest spatial neighbors. This lets the model use spatial structure that a tabular model (XGBoost, random forests) cannot see.
 
-**Cohort:** 2,054 counties in 37 states.
-
-**Caveat for the limitations section.** HCUP suppresses any county/category
-cell with fewer than 11 cases. About 43% of cohort counties are suppressed
-for placental disorders and 48% for puerperal — biasing the analytic
-frame toward larger, more urban counties, which *attenuates* the rural
-disadvantage we report.
+**Estimator.** **DoubleML** (Chernozhukov et al. 2018) — a debiasing technique that uses cross-fitted ML predictions to recover an unbiased causal coefficient on drive time, with valid 95% confidence intervals. Folds are leave-state-out to prevent within-state leakage.
 
 ---
 
-## 4. The methods
+## 5. The data
 
-You don't need to derive any of this. You need to (a) say what each
-method does in one sentence, (b) explain why we chose it, and (c) handle
-basic reviewer questions.
-
-### XGBoost predictive models
-
-Gradient-boosted decision trees: the algorithm fits trees sequentially,
-each one trained on the residuals of the prior ensemble. Result is a
-flexible, non-linear regressor that handles interactions automatically —
-which we want, because the relationship between SVI, demographics, and
-maternal outcomes isn't linear.
-
-We use **leave-state-out cross-validation**: hold out entire states at
-a time rather than individual counties. This prevents within-state
-leakage (HCUP coding, Medicaid policy, and OB workforce vary by state)
-and makes our reported performance a conservative estimate of
-out-of-state generalization.
-
-### GraphSAGE graph neural network
-
-A neural network that operates on a *graph* of counties, where edges
-connect each county to its 8 nearest geographic neighbors. With two
-layers, every county aggregates information from two hops out.
-
-We use it because maternal outcomes and access patterns spill across
-county lines (women cross county lines for OB care, especially in rural areas) and a tabular model can't see that. The GNN improves prediction on postpartum and HDP outcomes — the two where residential access is the dominant signal — and *loses* on the SMM composite, which is the outcome most contaminated by referral-capture. The selective gain is itself evidence that residential access is the right signal.
-
-### DoubleML causal model
-
-The naive approach — regressing outcome on travel time with confounders
-as covariates — is biased because high-risk areas get more hospitals,
-hospitals are sited in cities, cities have lower SVI, and SVI predicts
-outcomes. Confounding everywhere.
-
-DoubleML (Chernozhukov et al. 2018) handles this by (1) training a
-model to predict the outcome from confounders, (2) training a model to
-predict the exposure (travel time) from confounders, (3) computing
-residuals from both, and (4) regressing residual outcome on residual
-exposure. The estimate is **doubly robust** — if either nuisance model
-is well-specified, the causal estimate is consistent. We use cross-fitted
-XGBoost for both nuisance stages and cross-fit leave-state-out to
-prevent spatial leakage.
-
-We run three sensitivity analyses for every outcome — main cohort,
-excluding Level III host counties, and rural subsample (population
-decile ≤ 5). Our main causal claim (longer travel to Level III →
-more postpartum complications in rural counties) survives all three.
-
-### The clinical decision support tool (CDS)
-
-Given a county FIPS and the patient's risk factors at the first prenatal visit, the CDS returns:
-
-- the ACOG-recommended **level of maternal care**
-- the **actual drive time** to the nearest facility at each level
-- a **concordance gap** (concordant / gap / severe gap)
-- county context (SVI quartile, maternity-desert flag)
-- model-predicted complication rates for the county
-- an **action bundle** (MFM referral, social work, telehealth, postpartum
-  warning-sign counseling, delivery-hospital pre-assignment)
-
-Try it: **[babels.ai/maternal](https://babels.ai/maternal)**.
+Source: **PRJ-6250 — Maternal Health Equity Linked Datasets** (Colf et al., *Data in Brief* 2026, DOI 10.1016/j.dib.2026.112713). PRJ-6250 links four public sources at the U.S. county level for 2017–2019: AHRQ HCUP hospital discharge data (the outcomes), CDC Social Vulnerability Index 2018 (the social confounders), U.S. Census ACS / Decennial 2020 (demographics), and ArcGIS-computed drive times from each county centroid to the nearest hospital at each of four ACOG levels of maternal care. Cohort: **2,054 counties in 37 states**, covering 256 million Americans. The data descriptor PDF is in the repo root — read it first.
 
 ---
 
-## 5. Glossary
+## 6. Why drive time matters even after a woman is at the hospital for delivery
 
-- **ACOG / SMFM** — American College of Obstetricians and Gynecologists
-  / Society for Maternal-Fetal Medicine.
-- **SMM** — Severe Maternal Morbidity. CDC's 21-indicator list.
-- **HDP** — Hypertensive Disorders of Pregnancy.
-- **MFM** — Maternal-Fetal Medicine. Subspecialty for high-risk
-  pregnancy; available at Level III/IV.
-- **HCUP** — Healthcare Cost and Utilization Project (AHRQ). National
-  hospital discharge data.
-- **PRG categories** — HCUP's pregnancy-related diagnostic categories.
-- **SVI** — Social Vulnerability Index (CDC/ATSDR). Composite of
-  socioeconomic, household, minority/language, and housing/transportation
-  themes. Higher = more vulnerable.
+A common, fair question: if she's already at the hospital to deliver, why does her residential drive time matter at all? The resolution is that **postpartum complications almost all present *after* the woman has been discharged home**. The relevant drive time is therefore not "from home to delivery" — it is "from home back to a hospital that can manage a time-sensitive subspecialty emergency": massive transfusion, ICU, maternal-fetal medicine, interventional radiology, neuro-OB. A woman two hours from a Level III who develops postpartum hemorrhage at home doesn't have a two-hour budget — the drive is the loss-of-care window. Antepartum and intrapartum complications, by contrast, are managed where the woman is currently being cared for, which is exactly why their cases get transferred to receiving hospitals and recorded there. Postpartum is the only window in which residential geography has real, immediate causal force, which is also why it is the only window in which the question is answerable from this data.
+
+---
+
+## 7. Repository layout
+
+```
+Maternal-Health-USA/
+├── PRJ-6250/                                     ← raw dataset (5 MB CSV)
+├── matlevel-cds/                                 ← Python pipeline + FastAPI backend
+│   ├── src/
+│   │   ├── analytic.py        ← analytic frame
+│   │   ├── outcomes.py        ← rate construction
+│   │   ├── geo.py             ← centroids, k-NN adjacency, drive-time model
+│   │   ├── gnn.py             ← GraphSAGE architecture
+│   │   ├── gnn_eval.py        ← apples-to-apples GNN vs XGBoost head-to-head
+│   │   ├── gnn_deploy.py      ← train + cache GNN predictions per county
+│   │   ├── causal_gnn.py      ← DoubleML with GraphSAGE nuisance learners (the main method)
+│   │   ├── shap_gnn.py        ← gradient × input attribution for the GNN
+│   │   ├── cds.py             ← ACOG-CO-726 rule engine (for the demo panel)
+│   │   ├── counterfactual.py  ← hospital-siting engine
+│   │   └── ...
+│   ├── api/main.py            ← FastAPI: /access /recommend /counterfactual /graph/* /shap
+│   ├── outputs/
+│   │   ├── tables/dml_results.json           ← causal coefficients + CIs
+│   │   ├── tables/gnn_xgb_head_to_head.json  ← apples-to-apples evidence
+│   │   ├── models/gnn_predictions.json       ← cached GNN predictions per county × outcome
+│   │   └── figures/                          ← fig1–fig9 referenced in the manuscript
+│   ├── run_all.py             ← end-to-end pipeline
+│   ├── render.yaml            ← Render Blueprint config
+│   └── DEPLOY_RENDER.md       ← deployment notes
+└── 1-s2.0-S2352340926002660-main.pdf          ← PRJ-6250 data descriptor (read first)
+```
+
+The frontend (Next.js 14 + deck.gl + maplibre on Vercel) lives in a separate `babels.ai` repo as `app/maternal/page.tsx` plus `app/api/maternal/*/route.ts` proxy handlers.
+
+---
+
+## 8. Glossary
+
+- **Postpartum complications (puerperal complications)** — medical events affecting the mother after delivery, typically in the first six weeks: postpartum hemorrhage, postpartum sepsis, venous thromboembolism, postpartum preeclampsia / eclampsia, postpartum cardiomyopathy.
+- **Level III obstetric hospital** — ACOG / SMFM Committee Opinion 726 designation for a subspecialty maternal-care facility (on-site MFM, adult ICU, blood bank, advanced imaging). Level IV adds the most complex maternal medical / surgical care; the source data does not separate the two.
+- **HCUP** — Healthcare Cost and Utilization Project (AHRQ). National hospital discharge data.
+- **PRG categories** — HCUP's pregnancy-related Clinical Classifications Software Refined diagnostic groupings.
+- **SVI** — Social Vulnerability Index (CDC / ATSDR). Composite of four themes; higher = more vulnerable.
 - **AIAN** — American Indian / Alaska Native.
-- **time3** — drive time in minutes from the county centroid to the
-  nearest Level III OB facility.
-- **Concordance / gap / severe gap** — relationship between the level a
-  patient *should* deliver at vs. the level she can actually *reach*
-  within a given drive time.
-- **Maternity desert** — county with no/limited OB infrastructure; here,
-  `time3 > 90 min OR time1 > 60 min`.
-- **DoubleML** — causal-inference method that uses ML for nuisance
-  functions and gives an interpretable scalar treatment effect.
-- **Leave-state-out CV** — cross-validation in which entire states are
-  held out, to prevent within-state leakage.
-- **GNN / GraphSAGE** — graph neural network; updates each county's
-  representation by aggregating information from its graph neighbors.
-- **Counterfactual siting** — "if we placed a hospital here, who
-  benefits?" simulation.
-- **CDS** — Clinical Decision Support.
+- **Drive time (`time3`)** — minutes from the county centroid to the nearest Level III obstetric facility, computed by the PRJ-6250 team in ArcGIS.
+- **GraphSAGE** — Hamilton et al. 2017. A graph neural network that updates each node's representation by aggregating from its neighbors. We use a 2-layer version on the 8-nearest-neighbor county graph.
+- **DoubleML** — double / debiased machine learning (Chernozhukov 2018). A plug-in that recovers an unbiased causal coefficient using cross-fitted ML for the nuisance functions.
+- **Leave-state-out CV** — cross-validation in which entire states are held out, to prevent within-state leakage.
+- **Referral capture** — the data-design phenomenon by which a discharge after a patient transfer is recorded at the receiving hospital. The reason the geographic question is only honestly answerable for postpartum outcomes.
 
+---
+
+## Suggested citation
+
+> *How much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications? An interactive geospatial-AI companion.* Shrinit Babel, Leremy A. Colf, et al., 2026.
+> Live tool: [babels.ai/maternal](https://babels.ai/maternal).
+> Data: Colf et al., *Data in Brief* 2026, DOI 10.17603/ds2-62zy-zh93.
