@@ -2,7 +2,7 @@
 
 Live tool: **[babels.ai/maternal](https://babels.ai/maternal)**.
 
-This project asks one question, with machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we mean the medical events that happen to a woman *after* she has delivered her baby and gone home — chiefly **postpartum hemorrhage requiring readmission**, **postpartum sepsis** (typically 3–14 days after discharge), **postpartum venous thromboembolism / blood clots** (up to six weeks), **postpartum preeclampsia and eclampsia** (up to six weeks), and **postpartum cardiomyopathy** (weeks to months). These are leading causes of late maternal death in the United States.
+This project asks one question, with machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we mean the medical events that happen to a woman after she has delivered her baby and gone home — chiefly postpartum hemorrhage requiring readmission, postpartum sepsis (typically 3–14 days after discharge), postpartum blood clots (up to six weeks), postpartum preeclampsia and eclampsia (up to six weeks), and postpartum cardiomyopathy (weeks to months). These are leading causes of late maternal death in the United States.
 
 ---
 
@@ -19,27 +19,29 @@ Doubling a woman's drive to advanced obstetric care is associated with about a *
 
 ## 3. The method
 
-**The overall approach, in plain English.** We train a graph neural network to predict a county's postpartum complication rate, and its drive time to advanced care, from each county's own social and geographic features plus the features of its 8 nearest spatial neighbors. We then feed those two predictions into a debiasing estimator (DoubleML), which subtracts the part of the outcome and the part of the exposure that the model could already explain from the confounders, and reads the causal effect of drive time off the residuals. Four moving pieces, named below.
+**The overall approach, in plain English.** Two steps. First, an AI model learns to predict each county's postpartum complication rate — and its drive time to advanced care — from a set of demographic and social features for the county itself plus its 8 nearest neighbors. Second, a statistical method called DoubleML "subtracts out" the part of the rate that the AI could already explain from those features, and reads the *causal* effect of drive time off what's left over.
 
-**Target.** Each county's rate of postpartum complications per 1,000 pregnancy-related hospital visits.
+**What the model predicts (target).** Each county's rate of postpartum complications, expressed as cases per 1,000 pregnancy-related hospital visits.
 
-**Predictors per county.** Drive time to the nearest Level III obstetric hospital; the four CDC Social Vulnerability Index themes (socioeconomic status; household composition and disability; minority status and language; housing type and transportation); total population; share White / Black / AIAN / Asian; reporting completeness across the 15 PRG outcome categories; and whether the county itself hosts a Level III facility.
+**What goes into the model (features per county).** Drive time to the nearest Level III obstetric hospital; the four CDC Social Vulnerability Index themes (poverty and employment, household composition, minority status and language, housing and transportation); total population; share White / Black / American Indian or Alaska Native / Asian; how completely the county reports across HCUP's 15 pregnancy-related diagnosis categories; and whether the county itself contains a Level III hospital.
 
-**Model.** A 2-layer **GraphSAGE** graph neural network on an 8-nearest-neighbor county graph, built from the haversine distance between Census 2019 Gazetteer county centroids. Each county is represented as a vector that depends on its own features and the features of its eight nearest spatial neighbors. This lets the model use spatial structure that a tabular model (XGBoost, random forests) cannot see.
+**The AI model: GraphSAGE.** A "graph neural network" — a type of AI model designed for data with a network structure. We treat each county as a node and connect it to its 8 nearest geographic neighbors (by straight-line distance between county centers). The model learns each county's prediction by mixing in information from those 8 neighbors, which lets it pick up spatial patterns that a regular row-by-row model (like XGBoost or random forest) cannot see, because those treat counties as independent.
 
-**Estimator.** **DoubleML** (Chernozhukov et al. 2018) — a debiasing technique that uses cross-fitted ML predictions to recover an unbiased causal coefficient on drive time, with valid 95% confidence intervals. Folds are leave-state-out to prevent within-state leakage.
+**The causal estimator: DoubleML** (Chernozhukov et al. 2018). A statistical method that turns the AI's predictions into a clean causal estimate with 95% confidence intervals. To stop the model from memorizing one state's quirks, we hold out an entire state at a time during evaluation: the model trains on 36 states and is tested on the 37th, then we rotate.
 
 ---
 
 ## 5. The dataset used
 
-Source: **PRJ-6250 — Maternal Health Equity Linked Datasets** (Colf et al., *Data in Brief* 2026, DOI 10.1016/j.dib.2026.112713). PRJ-6250 links four public sources at the U.S. county level for 2017–2019: AHRQ HCUP hospital discharge data (the outcomes), CDC Social Vulnerability Index 2018 (the social confounders), U.S. Census ACS / Decennial 2020 (demographics), and ArcGIS-computed drive times from each county centroid to the nearest hospital at each of four ACOG levels of maternal care. Cohort: **2,054 counties in 37 states**, covering 256 million Americans. The data descriptor PDF is in the repo root — read it first.
+Source: PRJ-6250 — Maternal Health Equity Linked Datasets (Colf et al., *Data in Brief* 2026, DOI 10.1016/j.dib.2026.112713). PRJ-6250 links four public sources at the U.S. county level for 2017–2019: AHRQ HCUP hospital discharge data (the outcomes), CDC Social Vulnerability Index 2018 (the social confounders), U.S. Census ACS / Decennial 2020 (demographics), and ArcGIS-computed drive times from each county centroid to the nearest hospital at each of four ACOG levels of maternal care. Our cohort: 2,054 counties in 37 states, covering 256 million Americans. The data descriptor PDF is in the repo root — read it first.
 
 ---
 
 ## 6. Why drive time matters even after a woman is at the hospital for delivery
 
-A common, fair question: if she's already at the hospital to deliver, why does her residential drive time matter at all? The resolution is that **postpartum complications almost all present *after* the woman has been discharged home**. The relevant drive time is therefore not "from home to delivery" — it is "from home back to a hospital that can manage a time-sensitive subspecialty emergency": massive transfusion, ICU, maternal-fetal medicine, interventional radiology, neuro-OB. A woman two hours from a Level III who develops postpartum hemorrhage at home doesn't have a two-hour budget — the drive is the loss-of-care window. Antepartum and intrapartum complications, by contrast, are managed where the woman is currently being cared for, which is exactly why their cases get transferred to receiving hospitals and recorded there. Postpartum is the only window in which residential geography has real, immediate causal force, which is also why it is the only window in which the question is answerable from this data.
+A fair question: if she's already at the hospital to deliver, why does her drive time from home matter at all? The answer is that postpartum complications almost all show up *after* the woman has been discharged home. The relevant drive time is not "from home to delivery" — it's "from home back to a hospital that can manage a time-sensitive emergency" (massive transfusion, ICU, MFM, interventional radiology, neuro-OB). A woman two hours from a Level III who develops postpartum hemorrhage at home doesn't have a two-hour budget — the drive is the loss-of-care window.
+
+Complications during pregnancy or delivery, by contrast, are managed wherever the woman is currently being cared for. That's exactly why those cases get transferred to bigger hospitals and recorded there. So postpartum is the only window where residential geography has real, immediate causal force, which is also why it's the only window where the question is answerable from this data.
 
 ---
 
@@ -61,32 +63,41 @@ A common, fair question: if she's already at the hospital to deliver, why does h
 
 ### Headline causal estimates — postpartum complications
 
-DoubleML × GraphSAGE, partially-linear specification on `log(time3)`, leave-state-out spatial cross-validation, influence-function-based standard errors. Source: [`outputs/tables/dml_results.json`](matlevel-cds/outputs/tables/dml_results.json).
+The numbers below come from running the DoubleML × GraphSAGE pipeline on the postpartum complication rate, holding out one state at a time. Source: [`outputs/tables/dml_results.json`](matlevel-cds/outputs/tables/dml_results.json) (the raw model coefficients are in the JSON if you want them; the table here translates them into a more interpretable percentage).
 
-| Specification | n counties | θ on log(drive time) | 95% CI on θ | p | **Effect per doubling of drive time** |
+The "% per doubling of drive time" column means: if a county's drive time were doubled (say, from 30 minutes to 60), how much would the model expect the postpartum complication rate to change, holding everything else fixed?
+
+| Specification | n counties | % per doubling of drive time | 95% certainty range | p |
+|---|---:|---:|---|---:|
+| Main (all eligible counties) | 1,135 | +2.8% | (+1.2%, +4.4%) | 0.001 |
+| Excluding counties that have a Level III hospital | 1,128 | +2.8% | (+1.2%, +4.3%) | <0.001 |
+| Rural counties only (population decile ≤ 5) | 266 | +6.4% | (+2.0%, +10.9%) | 0.004 |
+
+The result holds even if we drop the big-city counties that already have a Level III hospital — so the finding isn't being driven by cities being healthier in general. And the rural-only version is about 2.3× larger, which fits the medical mechanism: long drives matter most where the local hospital can't manage a postpartum emergency on its own.
+
+### The sign-flip pattern across pregnancy outcomes
+
+The same pipeline was run on all four pregnancy-related outcomes that share the residential-geography question. The pattern across outcomes is the strongest evidence inside the analysis itself that what we found for postpartum is the real geographic effect, not a coincidence.
+
+| Outcome | n | % per doubling of drive time | 95% certainty range | p | What this means |
 |---|---:|---:|---|---:|---|
-| Main (all eligible counties) | 1,135 | +0.040 | (+0.018, +0.063) | 0.001 | **+2.8% (+1.2%, +4.4%)** |
-| Excluding Level III host counties | 1,128 | +0.040 | (+0.018, +0.061) | <0.001 | +2.8% (+1.2%, +4.3%) |
-| Rural subsample (population decile ≤ 5) | 266 | +0.089 | (+0.029, +0.149) | 0.004 | **+6.4% (+2.0%, +10.9%)** |
+| Severe maternal morbidity (composite) | 1,995 | −1.1% | (−1.9%, −0.3%) | 0.007 | Misleading — these high-risk patients get transferred to a Level III hospital, so the data records the case in the receiving county |
+| Hypertensive disorders of pregnancy | 1,991 | −2.9% | (−4.1%, −1.7%) | <0.001 | Misleading — same transfer mechanism |
+| Childbirth complications | 2,049 | −1.3% | (−2.3%, −0.4%) | 0.008 | Misleading — same transfer mechanism |
+| Postpartum complications (puerperal) | 1,135 | +2.8% | (+1.2%, +4.4%) | 0.001 | The real residential-access signal — postpartum events happen at the local hospital, not after a transfer |
 
-The estimate is robust to dropping counties that *host* a Level III facility (so the result is not driven by metropolitan counties that are themselves the destination), and the rural subsample magnifies the effect ~2.3× — consistent with the clinical mechanism that long drive times become decisive when local hospitals lack the capacity to manage time-sensitive postpartum emergencies.
-
-### The sign-flip pattern across PRG outcomes
-
-The same DoubleML × GraphSAGE specification was applied to all four PRG outcomes that share the residential-geography question. The pattern across outcomes is the strongest internal evidence that the postpartum estimate captures the real residential-access signal.
-
-| Outcome | n | θ on log(drive time) | 95% CI | p | Reading |
-|---|---:|---:|---|---:|---|
-| Severe maternal morbidity (composite) | 1,995 | −0.016 | (−0.028, −0.004) | 0.007 | Wrong-signed — system is transferring high-risk cases to Level III |
-| Hypertensive disorders of pregnancy | 1,991 | −0.043 | (−0.060, −0.025) | <0.001 | Wrong-signed — referral capture |
-| Childbirth complications | 2,049 | −0.020 | (−0.034, −0.005) | 0.008 | Wrong-signed — referral capture |
-| **Postpartum complications (puerperal)** | **1,135** | **+0.040** | **(+0.018, +0.063)** | **0.001** | **Correctly signed — the residential-access signal** |
-
-Three negative coefficients on outcomes that result in patient transfers. One positive on the outcome that does not. The sign flip is the empirical contribution: it lets us distinguish a real residential-access effect from a data-design artefact, on the same data, under the same model, in the same run.
+Three negative numbers on outcomes that get transferred away. One positive on the outcome that does not. The flip from negative to positive lets us tell a real residential-access effect apart from a quirk in how the data was collected — on the same data, under the same model, in the same run.
 
 ### GraphSAGE vs XGBoost — methods comparison
 
-Apples-to-apples evaluation under identical leave-state-out CV splits, bootstrap 95% CIs, and 5-seed stability resampling. Source: [`outputs/tables/gnn_xgb_head_to_head.json`](matlevel-cds/outputs/tables/gnn_xgb_head_to_head.json). **Bold = winner.**
+We ran the GraphSAGE GNN and a regular XGBoost (gradient-boosted trees) model on the same data, with the same train/test splits, and compared them. **Bold = winner per metric.** The four metrics:
+
+- **R²** — how much of the variation in county rates the model explains (higher = better).
+- **AUROC** — how well the model separates the highest-burden counties from the rest (higher = better).
+- **Reg-ECE** (regression Expected Calibration Error) — how well predicted rates match actual rates (lower = better).
+- **Stab. SD** (stability standard deviation) — how much the prediction wobbles when we re-train with different random starting points (lower = better).
+
+Source: [`outputs/tables/gnn_xgb_head_to_head.json`](matlevel-cds/outputs/tables/gnn_xgb_head_to_head.json).
 
 | Outcome | R² GNN | R² XGB | AUROC GNN | AUROC XGB | Reg-ECE GNN | Reg-ECE XGB | Stab. SD GNN | Stab. SD XGB |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -97,9 +108,8 @@ Apples-to-apples evaluation under identical leave-state-out CV splits, bootstrap
 | Placental disorders | **0.080** | 0.052 | **0.643** | 0.633 | **0.49** | 1.07 | **0.95** | 1.09 |
 | Diabetes in pregnancy | **0.077** | 0.069 | **0.653** | 0.621 | **1.32** | 2.70 | **3.06** | 3.69 |
 
-GraphSAGE wins **calibration (regression ECE) and seed stability on every one of the six outcomes** — typically reducing ECE by 40–50% and stability variance by ~15–20%. AUROC favors GraphSAGE on 5 of 6 outcomes (ties on SMM-proxy). R² is split 3–3, with XGBoost's wins concentrated on the outcomes that are referral-capture-confounded (HDP, SMM, childbirth), where R² is the least meaningful indicator. The magnitude of the causal estimate θ on the puerperal outcome is identical across both nuisance learners to four decimal places, so the headline causal claim does not depend on the choice of ML model — but the GraphSAGE-based reporting has tighter calibration and tighter prediction stability, which matters for any downstream use of the cached county-level predictions (the live tool).
+GraphSAGE wins on calibration and stability for every one of the six outcomes — typically cutting calibration error by 40–50% and prediction wobble by 15–20%. AUROC favors GraphSAGE on 5 of 6 outcomes (tied on the SMM composite). R² is split 3–3, with XGBoost's wins clustered on the outcomes that are confused by referral capture (HDP, SMM, childbirth) — where R² is misleading anyway. Reassuringly, the headline causal estimate for postpartum (+2.8% per doubling) is the same whether we use GraphSAGE or XGBoost as the AI model, so our main finding does not depend on which model we chose. The GraphSAGE pipeline just gives nicer-behaved predictions for the county-level numbers shown on the live site.
 
-A draft abstract for the eventual manuscript lives in [`ABSTRACT.md`](ABSTRACT.md).
 
 ---
 
@@ -156,4 +166,4 @@ The frontend (Next.js 14 + deck.gl + maplibre on Vercel) lives in a separate `ba
 
 ## extra. Why this needs machine learning
 
-A linear regression cannot recover this effect because the confounding is high-dimensional and *spatial* — a county's outcome depends on its neighbors' demographics and travel patterns, not just its own — so we need a model that can represent spatial structure paired with a debiased estimator that turns its predictions into an unbiased causal coefficient.
+A simple linear regression won't work here for two reasons. First, there are too many confounders — county demographics, social vulnerability, race composition, hospital landscape — and they don't combine in a clean linear way. Second, the confounding is *spatial*: a county's complication rate depends on its neighbors' situations, not just its own. So we need a model that can represent the neighborhood structure (the GNN) paired with a method that can pull a clean causal estimate out of that model (DoubleML).
