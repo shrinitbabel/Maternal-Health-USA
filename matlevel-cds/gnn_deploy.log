@@ -1,0 +1,21 @@
+[deploy] target=puerperal_rate_per1000  n_train=1135  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0896
+  epoch  50  train_mse=0.5509
+  epoch 100  train_mse=0.4432
+  epoch 150  train_mse=0.3846
+  epoch 200  train_mse=0.3642
+  epoch 250  train_mse=0.3227
+  epoch 300  train_mse=0.3092
+  epoch 350  train_mse=0.2746
+  epoch 399  train_mse=0.2749
+[deploy] target=hdp_rate_per1000  n_train=1992  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0598
+  epoch  50  train_mse=0.6901
+  epoch 100  train_mse=0.6054
+  epoch 150  train_mse=0.5100
+  epoch 200  train_mse=0.4416
+  epoch 250  train_mse=0.3970
+  epoch 300  train_mse=0.3711
+  epoch 350  train_mse=0.3463
+  epoch 399  train_mse=0.3351
+[ok] wrote gnn_predictions.json for 2054 counties x 2 targets

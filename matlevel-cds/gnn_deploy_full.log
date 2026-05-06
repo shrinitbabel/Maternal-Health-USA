@@ -1,0 +1,61 @@
+[deploy] target=puerperal_rate_per1000  n_train=1135  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0896
+  epoch  50  train_mse=0.5509
+  epoch 100  train_mse=0.4432
+  epoch 150  train_mse=0.3846
+  epoch 200  train_mse=0.3642
+  epoch 250  train_mse=0.3227
+  epoch 300  train_mse=0.3092
+  epoch 350  train_mse=0.2746
+  epoch 399  train_mse=0.2749
+[deploy] target=hdp_rate_per1000  n_train=1992  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0598
+  epoch  50  train_mse=0.6901
+  epoch 100  train_mse=0.6054
+  epoch 150  train_mse=0.5100
+  epoch 200  train_mse=0.4416
+  epoch 250  train_mse=0.3970
+  epoch 300  train_mse=0.3711
+  epoch 350  train_mse=0.3463
+  epoch 399  train_mse=0.3351
+[deploy] target=smm_rate_per1000  n_train=1996  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0946
+  epoch  50  train_mse=0.7721
+  epoch 100  train_mse=0.6782
+  epoch 150  train_mse=0.5938
+  epoch 200  train_mse=0.5225
+  epoch 250  train_mse=0.4664
+  epoch 300  train_mse=0.4371
+  epoch 350  train_mse=0.4060
+  epoch 399  train_mse=0.3972
+[deploy] target=childbirth_cx_rate_per1000  n_train=2050  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0442
+  epoch  50  train_mse=0.7687
+  epoch 100  train_mse=0.6451
+  epoch 150  train_mse=0.5639
+  epoch 200  train_mse=0.5141
+  epoch 250  train_mse=0.4690
+  epoch 300  train_mse=0.4487
+  epoch 350  train_mse=0.4035
+  epoch 399  train_mse=0.3906
+[deploy] target=placenta_rate_per1000  n_train=1009  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.0459
+  epoch  50  train_mse=0.7174
+  epoch 100  train_mse=0.5621
+  epoch 150  train_mse=0.4622
+  epoch 200  train_mse=0.4133
+  epoch 250  train_mse=0.3581
+  epoch 300  train_mse=0.3382
+  epoch 350  train_mse=0.3047
+  epoch 399  train_mse=0.2836
+[deploy] target=dm_rate_per1000  n_train=1651  n_edges=32864  epochs=400
+  epoch   0  train_mse=1.1096
+  epoch  50  train_mse=0.6812
+  epoch 100  train_mse=0.5947
+  epoch 150  train_mse=0.5314
+  epoch 200  train_mse=0.4658
+  epoch 250  train_mse=0.4147
+  epoch 300  train_mse=0.3780
+  epoch 350  train_mse=0.3741
+  epoch 399  train_mse=0.3333
+[ok] wrote gnn_predictions.json for 2054 counties x 6 targets

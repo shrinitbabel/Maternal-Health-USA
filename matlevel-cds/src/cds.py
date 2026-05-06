@@ -189,27 +189,61 @@ def _closest_within(times: dict, minutes: float) -> Optional[str]:
     return reachable[0][0]
 
 
-# ---------------- Risk-adjusted complication score (optional) ----------------
+# ---------------- Risk-adjusted complication score ---------------------------
 
 @lru_cache(maxsize=1)
 def _scoring_model():
-    with open(C.MODEL_DIR / "xgb_models.pkl", "rb") as f:
-        bundle = pickle.load(f)
-    return bundle["models"], bundle["feature_cols"]
+    """Legacy XGBoost loader. Retained ONLY so manuscript-evidence modules
+    (src.evaluate, src.gnn_eval) can train and benchmark the XGBoost
+    baseline. NOT called by the production /recommend or /access path.
+
+    If outputs/models/xgb_models.pkl is absent, returns ({}, []) — production
+    must not depend on this anymore."""
+    p = C.MODEL_DIR / "xgb_models.pkl"
+    if not p.exists():
+        return {}, []
+    try:
+        with open(p, "rb") as f:
+            bundle = pickle.load(f)
+        return bundle["models"], bundle["feature_cols"]
+    except Exception:
+        return {}, []
+
+
+@lru_cache(maxsize=1)
+def _gnn_predictions() -> dict:
+    """Return the cached GraphSAGE per-county predictions, or {} if absent.
+
+    GraphSAGE is the **primary** scorer for all six CDS outcomes (SMM, HDP,
+    childbirth, placenta, puerperal, DM). It wins or ties XGBoost on
+    calibration, ECE, and stability across the head-to-head; on the two
+    residential-access-driven outcomes (puerperal, HDP) it also wins R^2,
+    Pearson, MAE, and AUROC. XGBoost predictions are kept as a fallback in
+    case the GNN cache fails to load. See src.gnn_deploy for training and
+    src.gnn_eval for the apples-to-apples comparison.
+    """
+    import json
+    p = C.MODEL_DIR / "gnn_predictions.json"
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return {}
 
 
 def _county_complication_score(fips: str) -> dict:
-    """Return model-based SMM and puerperal rate estimates for the county."""
-    models, feat_cols = _scoring_model()
-    df = build_analytic()
-    row = df[df["fips"] == fips]
-    if row.empty:
-        return {}
-    X = feature_matrix(row)[feat_cols]
-    out = {}
-    for tgt, mdl in models.items():
-        out[tgt] = float(mdl.predict(X)[0])
-    return out
+    """Return GraphSAGE-predicted complication rates for the county.
+
+    GraphSAGE (8-NN spatial graph, full cohort training) is the production
+    scorer for all six CDS outcomes. XGBoost has been retired from the request
+    path; if you need to inspect the legacy XGBoost model, use src.gnn_eval
+    which still trains it as a manuscript head-to-head baseline. If the GNN
+    cache is missing for some target, that target is simply omitted from the
+    response — this lets the UI render gracefully.
+    """
+    return dict(_gnn_predictions().get("predictions", {})
+                .get(str(fips).zfill(5), {}))
 
 
 # -------------------------- Top-level CDS function --------------------------

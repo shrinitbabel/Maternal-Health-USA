@@ -41,7 +41,11 @@ Maternal Health USA/              <-- repo root
 ├── matlevel-cds/                 <-- the Python project we just built
 │   ├── api/
 │   ├── src/
-│   ├── outputs/models/xgb_models.pkl   <-- 7 MB, trained model
+│   ├── outputs/models/xgb_models.pkl        <-- 7 MB, XGBoost regressors
+│   ├── outputs/models/gnn_predictions.json  <-- ~150 KB, cached GraphSAGE
+│   │                                            predictions for puerperal+HDP
+│   │                                            (production scorer for those
+│   │                                            two outcomes)
 │   ├── requirements.txt
 │   ├── render.yaml
 │   └── ...

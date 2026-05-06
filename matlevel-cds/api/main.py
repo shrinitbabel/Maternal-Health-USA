@@ -77,7 +77,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-_STATE: dict = {"ready": False, "n_counties": 0, "model_loaded": False}
+_STATE: dict = {"ready": False, "n_counties": 0, "model_loaded": False,
+                "gnn_predictions_loaded": 0}
 
 
 @app.on_event("startup")
@@ -86,11 +87,16 @@ def _warm_caches() -> None:
         df = _county_lookup()
         _STATE["n_counties"] = int(len(df))
         try:
-            from src.cds import _scoring_model
-            _scoring_model()
-            _STATE["model_loaded"] = True
+            from src.cds import _gnn_predictions
+            gp = _gnn_predictions()
+            _STATE["gnn_predictions_loaded"] = len(gp.get("predictions", {}))
+            _STATE["model_loaded"] = _STATE["gnn_predictions_loaded"] > 0
+            targets = gp.get("_meta", {}).get("deploy_targets", [])
+            print(f"[ok] GraphSAGE primary scorer warmed for "
+                  f"{_STATE['gnn_predictions_loaded']} counties "
+                  f"x {len(targets)} outcomes ({', '.join(targets) or 'none'})")
         except Exception as e:
-            print(f"[warn] scoring model not loaded: {e}")
+            print(f"[warn] GraphSAGE cache not loaded: {e}")
             _STATE["model_loaded"] = False
         try:
             county_centroids()
@@ -204,6 +210,7 @@ def health() -> HealthResponse:
         version=APP_VERSION,
         counties_loaded=_STATE["n_counties"],
         model_loaded=_STATE["model_loaded"],
+        gnn_predictions_loaded=_STATE["gnn_predictions_loaded"],
     )
 
 
@@ -349,6 +356,132 @@ def map_centroids() -> list[dict]:
             "is_level3_host": bool(r.get("is_level3_host", False)),
         })
     return out
+
+# ---- graph endpoints (GraphSAGE-aware UI) --------------------------------
+
+from functools import lru_cache as _lru
+
+
+@_lru(maxsize=1)
+def _graph_cache() -> dict:
+    """Pre-bake the full 8-NN county graph: nodes (with lat/lon, SVI, GNN
+    predictions, access flags) and edges. Computed once at startup so the
+    network endpoint is O(1) after warm-up.
+
+    Edges are de-duplicated to undirected (i<j) to halve payload size.
+    The frontend can render with deck.gl (geographic) or three.js (3D)."""
+    from src.geo import knn_adjacency
+    from src.cds import _gnn_predictions
+
+    df = _county_lookup().reset_index()
+    cen = county_centroids().reset_index()
+    cen = cen.rename(columns={"index": "fips"}) if "index" in cen.columns else cen
+    joined = df.merge(cen[["fips", "lat", "lon"]], on="fips", how="left")
+
+    fips_order, edges = knn_adjacency(k=8)
+    fips_to_pos = {f: i for i, f in enumerate(fips_order)}
+    by_fips = joined.set_index("fips")
+
+    gnn_preds = _gnn_predictions().get("predictions", {})
+
+    nodes = []
+    for fips in fips_order:
+        if fips not in by_fips.index:
+            continue
+        r = by_fips.loc[fips]
+        nodes.append({
+            "fips": str(fips),
+            "county": str(r["county"]),
+            "state_fips": str(r["state_fips"]),
+            "lat": _none_if_nan(r.get("lat")),
+            "lon": _none_if_nan(r.get("lon")),
+            "time3_min": _none_if_nan(r.get("time3_imputed")),
+            "svi_percentile": _none_if_nan(r.get("rpl_themes")),
+            "svi_quartile": int(r["svi_quartile"]) if _not_nan(r.get("svi_quartile")) else None,
+            "maternity_desert": bool(r.get("maternity_desert", False)),
+            "is_level3_host": bool(r.get("is_level3_host", False)),
+            "gnn_scores": gnn_preds.get(str(fips), {}),
+        })
+
+    # De-duplicate to undirected edges (i<j only).
+    src, dst = edges[0], edges[1]
+    seen = set()
+    uniq_edges = []
+    for s, d in zip(src.tolist(), dst.tolist()):
+        a, b = (s, d) if s < d else (d, s)
+        if (a, b) in seen:
+            continue
+        seen.add((a, b))
+        uniq_edges.append({
+            "source_fips": str(fips_order[a]),
+            "target_fips": str(fips_order[b]),
+        })
+
+    return {
+        "_meta": {
+            "n_nodes": len(nodes),
+            "n_edges": len(uniq_edges),
+            "k_neighbors": 8,
+            "graph_construction": "8-NN by haversine on Census 2019 "
+                                   "Gazetteer county centroids",
+        },
+        "nodes": nodes,
+        "edges": uniq_edges,
+        "_fips_order": fips_order.tolist(),
+        "_edge_array": edges.tolist(),
+    }
+
+
+@app.get("/graph/network")
+def graph_network() -> dict:
+    """Full 8-NN county graph for the GraphSAGE-aware frontend.
+
+    Response shape:
+      {
+        "_meta": {n_nodes, n_edges, k_neighbors, graph_construction},
+        "nodes": [{fips, county, state_fips, lat, lon, time3_min,
+                   svi_percentile, svi_quartile, maternity_desert,
+                   is_level3_host, gnn_scores}, ...],
+        "edges": [{source_fips, target_fips}, ...]   # undirected, deduped
+      }
+
+    Cached at startup. Suitable for deck.gl ScatterplotLayer + LineLayer
+    (geographic) or a force-directed three.js scene (3D).
+    """
+    g = _graph_cache()
+    return {"_meta": g["_meta"], "nodes": g["nodes"], "edges": g["edges"]}
+
+
+@app.get("/graph/neighbors/{fips}")
+def graph_neighbors(fips: str) -> dict:
+    """Return the queried county and its 8 nearest neighbors with their
+    GraphSAGE-predicted rates and access metadata. The frontend uses this
+    for a 'compare to your neighbors' panel on the recommend page."""
+    fips = str(fips).zfill(5)
+    g = _graph_cache()
+    fips_order = g["_fips_order"]
+    if fips not in fips_order:
+        raise HTTPException(404, f"FIPS {fips} not in cohort")
+    pos = fips_order.index(fips)
+
+    src, dst = g["_edge_array"][0], g["_edge_array"][1]
+    neighbor_positions = [d for s, d in zip(src, dst) if s == pos]
+    neighbor_fips = sorted({fips_order[p] for p in neighbor_positions})
+
+    by_fips = {n["fips"]: n for n in g["nodes"]}
+    self_node = by_fips.get(fips, {})
+    neighbors = [by_fips[f] for f in neighbor_fips if f in by_fips]
+
+    return {
+        "self": self_node,
+        "neighbors": neighbors,
+        "n_neighbors": len(neighbors),
+        "_meta": {
+            "k_neighbors": 8,
+            "graph_construction": g["_meta"]["graph_construction"],
+        },
+    }
+
 
 # ------------------------------- SHAP explain --------------------------------
 from pydantic import BaseModel

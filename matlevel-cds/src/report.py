@@ -71,10 +71,13 @@ def _forest_plot():
     ax.set_yticklabels(y_labels, fontsize=9)
     ax.set_xlabel("DoubleML partial effect theta (log(rate) per unit log(time3))",
                   fontsize=11)
-    ax.set_title("Figure: DoubleML effect of Level-III travel time on county outcomes\n"
-                 "Positive -> more complications with greater distance "
-                 "(true residential access signal); Negative -> referral-center capture",
-                 fontsize=11)
+    ax.set_title(
+        "DoubleML effect of Level-III travel time on county outcomes\n"
+        "(GraphSAGE-nuisance partially-linear model, leave-state-out CV)\n"
+        "Positive -> more complications with greater distance "
+        "(true residential access signal); Negative -> referral-center capture",
+        fontsize=10,
+    )
     ax.invert_yaxis()
     ax.grid(True, axis="x", alpha=0.3)
 

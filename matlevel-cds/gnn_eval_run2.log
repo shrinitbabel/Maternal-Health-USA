@@ -1,0 +1,88 @@
+
+[head2head] target=puerperal_rate_per1000
+  [fold 1/5] train=908 test=227
+    fold-XGB R2=0.209  fold-GNN R2=0.326
+  [fold 2/5] train=907 test=228
+    fold-XGB R2=0.356  fold-GNN R2=0.412
+  [fold 3/5] train=909 test=226
+    fold-XGB R2=0.315  fold-GNN R2=0.178
+  [fold 4/5] train=908 test=227
+    fold-XGB R2=0.236  fold-GNN R2=0.352
+  [fold 5/5] train=908 test=227
+    fold-XGB R2=0.347  fold-GNN R2=0.408
+  [stability] 5-seed bootstrap for both models
+
+[head2head] target=hdp_rate_per1000
+  [fold 1/5] train=1593 test=399
+    fold-XGB R2=0.362  fold-GNN R2=0.101
+  [fold 2/5] train=1593 test=399
+    fold-XGB R2=0.310  fold-GNN R2=0.229
+  [fold 3/5] train=1594 test=398
+    fold-XGB R2=0.025  fold-GNN R2=0.094
+  [fold 4/5] train=1593 test=399
+    fold-XGB R2=0.145  fold-GNN R2=0.255
+  [fold 5/5] train=1595 test=397
+    fold-XGB R2=0.123  fold-GNN R2=0.273
+  [stability] 5-seed bootstrap for both models
+
+[head2head] target=smm_rate_per1000
+  [fold 1/5] train=1596 test=400
+    fold-XGB R2=0.217  fold-GNN R2=0.053
+  [fold 2/5] train=1597 test=399
+    fold-XGB R2=0.213  fold-GNN R2=0.052
+  [fold 3/5] train=1596 test=400
+    fold-XGB R2=0.138  fold-GNN R2=-0.012
+  [fold 4/5] train=1598 test=398
+    fold-XGB R2=-0.025  fold-GNN R2=0.216
+  [fold 5/5] train=1597 test=399
+    fold-XGB R2=-0.025  fold-GNN R2=0.028
+  [stability] 5-seed bootstrap for both models
+[ok] wrote fig9_gnn_vs_xgb.png
+[ok] wrote fig6_calibration_regression.png
+[ok] wrote fig8_binary_classifier.png
+[ok] wrote fig7_per_state_performance.png
+
+[ok] wrote gnn_xgb_head_to_head.json
+
+========= APPLES-TO-APPLES SUMMARY =========
+target                         metric                        XGBoost              GraphSAGE     winner
+---------------------------------------------------------------------------------------------------------
+puerperal_rate_per1000         R2                0.300 [0.210,0.368]    0.357 [0.209,0.494]        GNN
+puerperal_rate_per1000         MAE               3.107 [2.926,3.308]    2.984 [2.807,3.158]        GNN
+puerperal_rate_per1000         RMSE              4.395 [4.022,4.789]    4.213 [3.859,4.602]        GNN
+puerperal_rate_per1000         Pearson_r         0.571 [0.523,0.617]    0.610 [0.518,0.703]        GNN
+puerperal_rate_per1000         ECE_reg                         0.744                  0.425        GNN
+puerperal_rate_per1000         calib_slope                     0.779                  0.834        GNN
+puerperal_rate_per1000         stability_SD                    1.312                  1.064        GNN
+puerperal_rate_per1000         AUROC             0.796 [0.764,0.828]    0.815 [0.785,0.844]        GNN
+puerperal_rate_per1000         AUPRC                           0.636                  0.624        XGB
+puerperal_rate_per1000         F1@0.5                          0.143                  0.048        XGB
+puerperal_rate_per1000         Brier                           0.160                  0.174        XGB
+puerperal_rate_per1000         ECE_bin                         0.076                  0.120        XGB
+
+hdp_rate_per1000               R2                0.223 [0.149,0.296]    0.194 [0.143,0.243]        XGB
+hdp_rate_per1000               MAE            22.911 [22.076,23.850] 22.663 [21.734,23.654]        GNN
+hdp_rate_per1000               RMSE           30.006 [28.728,31.444] 30.542 [28.900,32.395]        XGB
+hdp_rate_per1000               Pearson_r         0.497 [0.440,0.556]    0.447 [0.398,0.494]        XGB
+hdp_rate_per1000               ECE_reg                         5.218                  2.671        GNN
+hdp_rate_per1000               calib_slope                     0.764                  0.869        GNN
+hdp_rate_per1000               stability_SD                    8.504                  6.874        GNN
+hdp_rate_per1000               AUROC             0.707 [0.680,0.735]    0.727 [0.699,0.753]        GNN
+hdp_rate_per1000               AUPRC                           0.488                  0.469        XGB
+hdp_rate_per1000               F1@0.5                          0.073                  0.311        GNN
+hdp_rate_per1000               Brier                           0.172                  0.172        XGB
+hdp_rate_per1000               ECE_bin                         0.052                  0.081        XGB
+
+smm_rate_per1000               R2                0.137 [0.074,0.198]    0.074 [0.037,0.112]        XGB
+smm_rate_per1000               MAE            45.001 [43.295,46.780] 44.639 [42.854,46.458]        GNN
+smm_rate_per1000               RMSE           58.575 [56.204,61.041] 60.648 [57.497,63.748]        XGB
+smm_rate_per1000               Pearson_r         0.406 [0.349,0.461]    0.290 [0.241,0.340]        XGB
+smm_rate_per1000               ECE_reg                        10.075                  5.972        GNN
+smm_rate_per1000               calib_slope                     0.711                  0.763        GNN
+smm_rate_per1000               stability_SD                   16.799                 13.301        GNN
+smm_rate_per1000               AUROC             0.635 [0.604,0.664]    0.632 [0.603,0.663]        XGB
+smm_rate_per1000               AUPRC                           0.412                  0.376        XGB
+smm_rate_per1000               F1@0.5                          0.109                  0.074        XGB
+smm_rate_per1000               Brier                           0.179                  0.184        XGB
+smm_rate_per1000               ECE_bin                         0.050                  0.067        XGB
+

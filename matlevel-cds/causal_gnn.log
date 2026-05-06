@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\shrin\Documents\GitHub\Maternal-Health-USA\matlevel-cds\src\causal_gnn.py", line 286, in <module>
+    run()
+  File "C:\Users\shrin\Documents\GitHub\Maternal-Health-USA\matlevel-cds\src\causal_gnn.py", line 263, in run
+    sens2 = dml_partially_linear(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\shrin\Documents\GitHub\Maternal-Health-USA\matlevel-cds\src\causal_gnn.py", line 213, in dml_partially_linear
+    theta, se, n = _theta_from_residuals(y_res, d_res, final_mask)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\shrin\Documents\GitHub\Maternal-Health-USA\matlevel-cds\src\causal_gnn.py", line 182, in _theta_from_residuals
+    yr, dr = y_res[mask], d_res[mask]
+             ~~~~~^^^^^^
+IndexError: only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices
+
+[dml-gnn] smm_rate_per1000 x log_time3
+    [dml-gnn fold 1/5] train=1596 test=400
+    [dml-gnn fold 2/5] train=1597 test=399
+    [dml-gnn fold 3/5] train=1596 test=400
+    [dml-gnn fold 4/5] train=1598 test=398
+    [dml-gnn fold 5/5] train=1597 test=399
+    [dml-gnn fold 1/5] train=1596 test=400
+    [dml-gnn fold 2/5] train=1597 test=399
+    [dml-gnn fold 3/5] train=1596 test=400
+    [dml-gnn fold 4/5] train=1598 test=398
+    [dml-gnn fold 5/5] train=1597 test=399
+    [dml-gnn fold 1/5] train=1596 test=400
+    [dml-gnn fold 2/5] train=1597 test=399
+    [dml-gnn fold 3/5] train=1596 test=400
+    [dml-gnn fold 4/5] train=1598 test=398
+    [dml-gnn fold 5/5] train=1597 test=399

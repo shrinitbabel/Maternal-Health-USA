@@ -93,6 +93,7 @@ class HealthResponse(BaseModel):
     version: str
     counties_loaded: int
     model_loaded: bool
+    gnn_predictions_loaded: int = 0
 
 
 class CounterfactualRequest(BaseModel):

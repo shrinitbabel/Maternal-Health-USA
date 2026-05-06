@@ -1,0 +1,21 @@
+feature,label,mean_abs_attr
+time3_imputed,"Travel time to OB Level III (serious / abnormalities), min",1818.7824439920423
+time2_imputed,"Travel time to OB Level II (uncomplicated + most complicated), min",1520.1749298649604
+time1_imputed,"Travel time to OB Level I (uncomplicated), min",974.7236559656174
+log_pop,log(county population),269.20978013325106
+time0_imputed,"Travel time to nearest hospital (no OB services), min",228.6888582209929
+log_time3,log(Level III travel time + 1),126.71663289715272
+pct_black,% Black alone,122.3966261041673
+pop_decile,"Population decile (1 = smallest, 10 = largest)",85.2530691894394
+pct_aian,% American Indian / Alaska Native,39.967689818414335
+reporting_completeness,HCUP reporting completeness (fraction of 15 PRG categories),26.91192951326955
+gap30_level3,Level III >30 min away (binary),19.66902049973034
+pct_asian,% Asian alone,17.980237549556573
+effective_access_tier_30min,Highest OB level reachable within 30 min (0–3),16.093755888941537
+rpl_theme2,SVI Theme 2: Household composition & disability,13.272781166820842
+rpl_theme4,SVI Theme 4: Housing type & transportation,10.261666436317716
+rpl_theme1,SVI Theme 1: Socioeconomic status,9.608393978377363
+rpl_theme3,SVI Theme 3: Minority status & language,7.251832970444448
+gap60_level3,Level III >60 min away (binary),6.95307403667906
+gap90_level3,Level III >90 min away (binary),5.611253006471129
+is_level3_host,County hosts a Level III facility (binary),0.01567165413500297
