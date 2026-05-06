@@ -9,7 +9,7 @@ Click around the map for ten minutes before reading further — that's the faste
 
 The U.S. has the highest maternal mortality rate of any high-income
 country, and the deaths are not distributed evenly: rural, low-income,
-and certain communities carry disproportionate burden. ACOG and SMFM defined four **Levels of Maternal Care** (I–IV) so that high-risk
+and certain communities carry disproportionate burden. ACOG (American College of Obstetrics and Gynecology) and SMFM (Society of Maternal-Fetal Medicine) defined four **Levels of Maternal Care** (I–IV) so that high-risk
 pregnancies can be matched to facilities equipped to handle them. Level III/IV centers are advanced OBGYN centers that offer maternal-fetal medicine, ICU, and advanced neonatal care; Levels I–II do not.
 
 Our clinical question: **how far do U.S. women live from the level of
