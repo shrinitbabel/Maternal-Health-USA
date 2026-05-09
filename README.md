@@ -2,7 +2,7 @@
 
 Live tool: **[babels.ai/maternal](https://babels.ai/maternal)**.
 
-This project asks one question, with machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we mean the medical events that happen to a woman after she has delivered her baby and gone home — chiefly postpartum hemorrhage requiring readmission, postpartum sepsis (typically 3–14 days after discharge), postpartum blood clots (up to six weeks), postpartum preeclampsia and eclampsia (up to six weeks), and postpartum cardiomyopathy (weeks to months). These are leading causes of late maternal death in the United States.
+This project asks one question, with machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we specifically mean HCUP's CCSR category PRG027 — Complications specified during the puerperium — which captures inpatient cases coded under ICD-10-CM O85–O92: postpartum sepsis (O85), other puerperal infections including endometritis and wound infection (O86), postpartum venous thromboembolism / blood clots (O87), obstetric embolism including amniotic fluid embolism (O88), anesthesia complications of the puerperium (O89), other puerperal complications including postpartum cardiomyopathy and wound disruption (O90), and postpartum breast infections and lactation disorders (O91–O92).
 
 ---
 
@@ -39,7 +39,7 @@ Source: PRJ-6250 — Maternal Health Equity Linked Datasets (Colf et al., *Data 
 
 ## 6. Why drive time matters even after a woman is at the hospital for delivery
 
-A fair question: if she's already at the hospital to deliver, why does her drive time from home matter at all? The answer is that postpartum complications almost all show up *after* the woman has been discharged home. The relevant drive time is not "from home to delivery" — it's "from home back to a hospital that can manage a time-sensitive emergency" (massive transfusion, ICU, MFM, interventional radiology, neuro-OB). A woman two hours from a Level III who develops postpartum hemorrhage at home doesn't have a two-hour budget — the drive is the loss-of-care window.
+A fair question: if she's already at the hospital to deliver, why does her drive time from home matter at all? The answer is that postpartum complications almost all show up *after* the woman has been discharged home. The relevant drive time is not "from home to delivery" — it's "from home back to a hospital that can manage a time-sensitive emergency" (massive transfusion, ICU, MFM, interventional radiology, neuro-OB). A woman two hours from a Level III who develops postpartum sepsis or a pulmonary embolism at home doesn't have a two-hour budget — the drive is the loss-of-care window.
 
 Complications during pregnancy or delivery, by contrast, are managed wherever the woman is currently being cared for. That's exactly why those cases get transferred to bigger hospitals and recorded there. So postpartum is the only window where residential geography has real, immediate causal force, which is also why it's the only window where the question is answerable from this data.
 
