@@ -2,7 +2,9 @@
 
 Live tool: **[babels.ai/maternal](https://babels.ai/maternal)**.
 
-This project asks one question, with machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we specifically mean HCUP's CCSR category PRG027 — Complications specified during the puerperium — which captures inpatient cases coded under ICD-10-CM O85–O92: postpartum sepsis (O85), other puerperal infections including endometritis and wound infection (O86), postpartum venous thromboembolism / blood clots (O87), obstetric embolism including amniotic fluid embolism (O88), anesthesia complications of the puerperium (O89), other puerperal complications including postpartum cardiomyopathy and wound disruption (O90), and postpartum breast infections and lactation disorders (O91–O92).
+![Project schematic — postpartum complications, drive time to ACOG/SMFM Level III maternal care, and per-county puerperal morbidity, framed by causal machine learning](schematic.svg)
+
+This project asks one question, with causal machine learning: **how much does a U.S. county's drive time to advanced obstetric care affect its rate of postpartum complications?** By "postpartum complications" we specifically mean HCUP's CCSR category PRG027 — Complications specified during the puerperium — which captures inpatient cases coded under ICD-10-CM O85–O92: postpartum sepsis (O85), other puerperal infections including endometritis and wound infection (O86), postpartum venous thromboembolism / blood clots (O87), obstetric embolism including amniotic fluid embolism (O88), anesthesia complications of the puerperium (O89), other puerperal complications including postpartum cardiomyopathy and wound disruption (O90), and postpartum breast infections and lactation disorders (O91–O92).
 
 ---
 
