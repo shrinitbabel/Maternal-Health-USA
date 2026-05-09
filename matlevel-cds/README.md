@@ -48,15 +48,15 @@ Full details in `outputs/tables/full_metrics.json` (XGBoost-only, legacy) and `o
 
 Casting the continuous rate at the 75th percentile (= "high-burden county"):
 
-| Metric | Value | 95% CI |
-|---|---:|---|
-| **AUROC** | **0.785** | **[0.750, 0.817]** |
-| AUPRC | 0.631 | — |
-| F1 @ 0.5 | 0.530 | — |
-| Brier | 0.152 | — |
-| ECE | 0.095 | — |
+| Metric | GraphSAGE (deployed) | XGBoost (legacy) |
+|---|---:|---:|
+| AUROC | **0.815 [0.785, 0.844]** | 0.796 [0.750, 0.817] |
+| AUPRC | 0.624 | 0.636 |
+| F1 @ 0.5 | 0.048* | 0.143* |
+| Brier | 0.174 | 0.160 |
+| ECE | 0.120 | 0.076 |
 
-**AUROC ~0.79 is a meaningful, publishable discrimination level** for a county-level epidemiologic classifier, and ECE of 0.095 says the predicted probabilities are reasonably calibrated. ROC / PR / calibration curves in `outputs/figures/fig8_binary_classifier.png`.
+GraphSAGE wins discrimination (AUROC: +0.019); XGBoost wins probabilistic calibration (Brier, binary ECE) on this binary head specifically. The asymmetry is mechanical: GraphSAGE's "probability" here is its regression output min-max-rescaled to [0,1] — which preserves rank but isn't a true probability — while XGBoost has a native sigmoid head. *F1 is therefore not directly comparable across the two; use AUROC or AUPRC for clean comparisons. ROC / PR / calibration curves for all 6 outcomes (not just puerperal) in `outputs/figures/fig8_binary_classifier.png`.
 
 ### Geospatial GNN vs tabular XGBoost — apples-to-apples (all six outcomes)
 
@@ -145,7 +145,7 @@ Using DoubleML with cross-fitted **GraphSAGE** nuisance learners (8-NN county gr
 
 The first three outcomes show a **negative** association with Level-III travel time — longer travel is paradoxically associated with lower coded rates — because HCUP is discharge-based and high-risk patients are *transferred* to regional tertiary centers. The receiving county "owns" the discharge.
 
-**Puerperal complications move in the opposite direction**: longer travel to Level III is associated with *higher* coded rates. In the rural subsample (population decile ≤ 5), a doubling of travel time is associated with **~9% higher log puerperal rate** (θ=+0.089, 95% CI +0.029 to +0.149, p=0.004). Postpartum sepsis, VTE, and hemorrhage readmissions happen at the woman's *local* hospital, so discharge-capture bias disappears and the real residential access signal becomes visible.
+**Puerperal complications move in the opposite direction**: longer travel to Level III is associated with *higher* coded rates. In the rural subsample (population decile ≤ 5), a **doubling of travel time is associated with a ~6.4% higher puerperal rate** (95% CI +2.0% to +10.9%, p=0.004; raw coefficient θ=+0.089 on log(time3), 95% CI +0.029 to +0.149). Postpartum sepsis, VTE, and hemorrhage readmissions happen at the woman's *local* hospital, so discharge-capture bias disappears and the real residential access signal becomes visible.
 
 **Robustness**: these point estimates and 95% CIs are essentially identical to the prior XGBoost-nuisance specification (the difference between learner classes is in the 4th decimal). The referral-capture paradox is therefore not an artefact of the choice of ML nuisance learner — it survives a graph-aware nuisance just as it survived the boosted-tree nuisance.
 
@@ -173,7 +173,7 @@ Given a county FIPS and a structured `RiskFactors` object at the first prenatal 
 - `concordance` — `concordant` / `gap` / `severe_gap`
 - `gap_minutes` — how many minutes beyond a 30-min target
 - `svi_quartile`, `svi_percentile`, `maternity_desert`, `is_level3_host` — county context
-- `county_model_scores` — XGBoost-predicted complication rates (SMM, HDP, childbirth, placenta, puerperal, DM)
+- `county_model_scores` — GraphSAGE-predicted complication rates (SMM, HDP, childbirth, placenta, puerperal, DM)
 - `action_bundle` — recommended workflow items (MFM referral, social work, telehealth, warning-sign counseling)
 - `disclaimer`
 
@@ -240,7 +240,8 @@ matlevel-cds/
     analytic.py      - final analytic frame + modeling column groupings
     describe.py      - Table 1, stratified descriptives, headline 4-panel figure
     model.py         - Negative Binomial GLM + XGBoost spatial CV
-    causal.py        - DoubleML partially-linear model + sensitivity analyses
+    causal.py        - DoubleML w/ XGBoost nuisances (sensitivity check)
+    causal_gnn.py    - DoubleML w/ GraphSAGE nuisances (PRIMARY causal method)
     explain.py       - SHAP importance + dependence plots + fairness stratification
     evaluate.py      - full metrics: baselines, bootstrap CIs, calibration, ECE,
                        per-state, binary AUROC/AUPRC/F1/Brier
@@ -291,7 +292,8 @@ Individual steps:
 ```bash
 python -m src.describe          # Table 1 + fig1
 python -m src.model             # NB-GLM + XGBoost spatial CV
-python -m src.causal            # DoubleML + sensitivity analyses
+python -m src.causal_gnn        # DoubleML with GraphSAGE nuisances (primary)
+python -m src.causal            # DoubleML with XGBoost nuisances (sensitivity)
 python -m src.explain           # SHAP + fairness
 python -m src.report            # forest plot + equity bars
 python -m src.evaluate          # full metrics + calibration + ECE + binary AUC/F1
@@ -356,7 +358,7 @@ Source: PRJ-6250 V2 "Maternal Health Equity Linked Datasets" (Colf et al., *Data
 ### Models
 - **Negative Binomial GLM** on SMM-proxy counts with `offset = log(denom)`
 - **XGBoost** regressors per outcome, 5-fold leave-state-out CV
-- **DoubleML partially-linear model** (Chernozhukov et al. 2018) with cross-fitted XGBoost nuisance learners, leave-state-out folds, influence-function SEs
+- **DoubleML partially-linear model** (Chernozhukov et al. 2018) with cross-fitted **GraphSAGE** nuisance learners (`src/causal_gnn.py`), leave-state-out folds, influence-function SEs. The XGBoost-nuisance version (`src/causal.py`) is retained as a sensitivity check; both classes return the same θ to four decimal places.
 - **Sensitivity analyses**: main / exclude Level-III host counties / rural subset (pop decile ≤ 5)
 - **2-layer GraphSAGE** on 8-NN county adjacency graph, standardized target, 300 epochs with early stopping, transductive leave-state-out CV
 - **Binary classifier**: XGBClassifier on top-quartile puerperal label with bootstrap AUROC CI
